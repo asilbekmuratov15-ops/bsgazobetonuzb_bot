@@ -36,11 +36,47 @@ Rasmlar Groq API ga uzatiladi, mahalliy bazada tanilgan ma’lumotlar saqlanadi.
 
 Python 3.12+, PostgreSQL 17+ o‘rnating. Virtual muhit yarating va `pip install -r requirements.txt` bajaring. PostgreSQLda alohida foydalanuvchi va bo‘sh baza yarating, `.env.example` ni `.env` ga ko‘chirib DATABASE_URL ni sozlang. `python bot.py` jadvallarni yaratadi. Mahalliy start skriptlari ushbu workspace ichidagi portable o‘rnatishga mo‘ljallangan.
 
-Test: `python -m unittest -v`. API kalitlarisiz arifmetika va CSV tekshiriladi. Haqiqiy Groq/Telegram sinovi uchun kalitlar kerak.
+Test: repo ildizida `python -m unittest discover -s tests -v`. API kalitlarisiz arifmetika, CSV, Telegram xabari, routerlar va kontragent tanlash tekshiriladi. Haqiqiy Groq/Telegram sinovi uchun kalitlar kerak.
 
-Mahalliy tekshiruv natijasi: 3 test o‘tdi; PostgreSQL insert/dublikat/foydalanuvchi ajratilishi/tasdiqlash/tahrirdan keyin draft holatiga qaytish sinovlari o‘tdi; bot importi yuklandi; `pip check` xatosiz. Groq orqali berilgan rasm jonli tekshirildi: 3 qator, jami 720000. Telegram getMe va Groq models HTTP 200 qaytardi. 1C importi hali tekshirilmagan. O‘rnatilgan aniq paket versiyalari `requirements.txt` ichida.
+Mahalliy tekshiruv natijasi: 12 test o‘tdi; PostgreSQL insert/dublikat/foydalanuvchi ajratilishi/tasdiqlash/tahrirdan keyin draft holatiga qaytish sinovlari o‘tdi; bot importi yuklandi; `pip check` xatosiz. Groq orqali berilgan rasm jonli tekshirildi: 3 qator, jami 720000. Telegram getMe va Groq models HTTP 200 qaytardi. 1C importi hali tekshirilmagan. O‘rnatilgan aniq paket versiyalari `requirements.txt` ichida.
 
 Groq Vision: https://console.groq.com/docs/vision
 
 Groq modeli `GROQ_MODEL` orqali sozlanadi; hozir `qwen/qwen3.8-27b`. Javob JSON mode orqali olinib Pydantic bilan tekshiriladi. Admin kirishi `ALLOWED_USER_IDS` bilan boshqariladi.
 
+## Kod tuzilishi
+
+```text
+bot.py                   # Kichik ishga tushirish fayli
+app/
+  main.py                # Bot va bazaning hayot sikli
+  config.py              # Muhit o‘zgaruvchilari va tekshiruv
+  context.py             # Handlerlarga uzatiladigan bog‘liqliklar
+  factory.py             # Dispatcher va routerlarni ulash
+  middleware.py          # Kirish huquqi va xatolar
+  states.py              # Kontragent kiritish holatlari
+  models/invoice.py      # Hujjat va tovar modellari
+  db/repository.py       # PostgreSQL so‘rovlari
+  services/
+    groq_ocr.py          # Rasmdan ma’lumot tanish
+    csv_export.py        # Sozlanadigan 1C CSV eksporti
+    validation.py        # Majburiy maydonlar va arifmetika
+    counterparties.py    # Tanlangan kontragentni qo‘llash
+  handlers/
+    common.py            # Yordam va bekor qilish
+    documents.py         # Ko‘rish, tuzatish, tasdiqlash, eksport
+    callbacks.py         # Inline tugmalar
+    counterparties.py    # Qidirish va yangi kontragent
+    uploads.py           # Rasm qabul qilish
+  ui/
+    formatters.py        # Rasmdagidek xabar va son formatlari
+    keyboards.py         # Kontragent va amal tugmalari
+    views.py             # Xabarni Telegramga chiqarish
+    texts.py             # Yordam matni
+tests/                   # Tarmoqsiz avtomatik testlar
+```
+
+Handlerlar global baza yoki API kalitiga bog‘lanmaydi: `BotContext` aiogram orqali uzatiladi. Konfiguratsiya faqat ishga tushganda o‘qiladi. PostgreSQL sxemasi va `python bot.py` start buyrug‘i saqlandi; mavjud Railway Variables o‘zgartirilmaydi.
+
+
+Dasturchilar uchun: `pip install -r requirements-dev.txt`, keyin `ruff check app tests bot.py` va `ruff format --check app tests bot.py`.

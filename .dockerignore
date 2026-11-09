@@ -2,8 +2,8 @@
 !Dockerfile
 !requirements.txt
 !bot.py
-!domain.py
-!storage.py
-!ocr.py
-!presentation.py
+!app/
+!app/**
+**/__pycache__/
+**/*.pyc
 !csv_profile.json
