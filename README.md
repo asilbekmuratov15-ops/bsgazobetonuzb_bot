@@ -4,6 +4,8 @@ Python + aiogram, PostgreSQL, Groq Vision. Interfeys o‘zbekcha.
 
 Railway uchun ko‘rsatma: [RAILWAY.md](RAILWAY.md). Konteyner `Dockerfile` orqali quriladi.
 
+Rasm natijasi o‘qishga qulay Telegram xabarida chiqadi. Pastdagi tugmalar orqali kontragentni tanlash, nom/INN bo‘yicha qidirish va yangisini `INN; 1C dagi nomi; Shartnoma` formatida saqlash mumkin. Ro‘yxat foydalanuvchi bo‘yicha PostgreSQL’da saqlanadi va har sahifada 5 ta nom ko‘rsatiladi. `/bekor` kiritishni bekor qiladi. Tanlashda INN va shartnoma birga to‘ldiriladi, tasdiqlangan hujjat qayta qoralamaga aylanadi. Qog‘ozdagi dastlabki yetkazib beruvchi alohida saqlanadi. `Tasdiqlash` va `CSV olish` tugmalari mavjud; odatdagi matnli buyruqlar ham ishlaydi.
+
 ## Ishga tushirish
 
 1. `.env` faylida `TELEGRAM_BOT_TOKEN`, `GROQ_API_KEY`, `ALLOWED_USER_IDS` ni kiriting. Bot tokeni BotFather orqali olinadi. ID — ruxsat berilgan shaxslarning Telegram raqamli user ID qiymatlari, telefon raqami emas. Kalitlarni Git yoki chatga joylamang.

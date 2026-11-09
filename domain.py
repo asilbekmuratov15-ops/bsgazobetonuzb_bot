@@ -22,6 +22,7 @@ class Invoice(BaseModel):
     incoming_number: str = ''
     incoming_date: date | None = None
     supplier: str = ''
+    source_supplier: str = ''
     supplier_inn: str = ''
     recipient: str = ''
     contract: str = ''

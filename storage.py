@@ -19,6 +19,37 @@ class Store:
               status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','approved')),
               created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
               UNIQUE(owner,digest))''')
+            conn.execute('''CREATE TABLE IF NOT EXISTS counterparties (
+              id BIGSERIAL PRIMARY KEY, owner BIGINT NOT NULL,
+              name TEXT NOT NULL, inn TEXT NOT NULL DEFAULT '', contract TEXT NOT NULL DEFAULT '',
+              UNIQUE(owner,name))''')
+
+    def save_party(self, owner, name, inn, contract):
+        with self.connect() as conn:
+            return conn.execute('''INSERT INTO counterparties(owner,name,inn,contract) VALUES(%s,%s,%s,%s)
+              ON CONFLICT(owner,name) DO UPDATE SET inn=EXCLUDED.inn,contract=EXCLUDED.contract
+              RETURNING *''', (owner,name,inn,contract)).fetchone()
+
+    def parties(self, owner, query='', page=0):
+        with self.connect() as conn:
+            # Search literal user text, not LIKE wildcards.
+            return conn.execute('''SELECT * FROM counterparties WHERE owner=%s
+              AND (strpos(lower(name),lower(%s))>0 OR strpos(inn,%s)>0)
+              ORDER BY id LIMIT 6 OFFSET %s''', (owner,query,query,page*5)).fetchall()
+
+    def party(self, owner, party_id):
+        with self.connect() as conn:
+            row = conn.execute('SELECT * FROM counterparties WHERE owner=%s AND id=%s', (owner,party_id)).fetchone()
+        if not row:
+            raise ValueError('Kontragent topilmadi')
+        return row
+
+    def seed_parties(self, owner):
+        # Only the exact known 1C record from the supplied screenshot is prefilled.
+        with self.connect() as conn:
+            conn.execute('''INSERT INTO counterparties(owner,name,inn,contract)
+              VALUES(%s,%s,%s,%s) ON CONFLICT(owner,name) DO NOTHING''',
+              (owner,'Элмуродов Сарвар (снабженец)','121233663','Договор № 01.07 от 01.07.2026г.'))
 
     def add(self, owner, digest, invoice):
         with self.connect() as conn:
