@@ -1,0 +1,8 @@
+*
+!Dockerfile
+!requirements.txt
+!bot.py
+!domain.py
+!storage.py
+!ocr.py
+!csv_profile.json
